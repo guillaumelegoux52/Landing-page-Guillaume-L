@@ -38,6 +38,9 @@
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
 
     // Caméra orthographique
     const aspect = window.innerWidth / window.innerHeight;
@@ -55,24 +58,28 @@
     camera.position.set(0, 0, 500);
     camera.lookAt(0, 0, 0);
 
-    // Lumière ambiante très légère
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.18);
+    // Lumières
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.12);
     scene.add(ambientLight);
 
-    // Key light (principale)
-    const keyLight = new THREE.DirectionalLight(0xffffff, 3.2);
-    keyLight.position.set(160, 100, 220);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
+    keyLight.position.set(150, 140, 220);
     scene.add(keyLight);
 
-    // Fill light (remplissage)
-    const fillLight = new THREE.DirectionalLight(0xdde7ff, 1.2);
-    fillLight.position.set(-140, 40, 120);
+    const fillLight = new THREE.DirectionalLight(0xd9e2ff, 0.6);
+    fillLight.position.set(-160, 40, 120);
     scene.add(fillLight);
 
-    // Rim / back light (contour)
-    const rimLight = new THREE.DirectionalLight(0xffffff, 2.4);
-    rimLight.position.set(0, 0, -220);
+    const rimLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    rimLight.position.set(0, 30, -220);
     scene.add(rimLight);
+
+    const underGlow = new THREE.DirectionalLight(0xffa15a, 1.9);
+    underGlow.position.set(0, -220, 140);
+    scene.add(underGlow);
+
+    const warmBounce = new THREE.AmbientLight(0xffb37a, 0.08);
+    scene.add(warmBounce);
 
     // Pivot parent
     const logoPivot = new THREE.Group();
@@ -83,18 +90,18 @@
     logoGroup.scale.y = -1;
     logoPivot.add(logoGroup);
 
-    const loader = new THREE.SVGLoader();
+    const svgLoader = new THREE.SVGLoader();
 
-    loader.load("./3d assets/logo-gl.svg", function (data) {
+    svgLoader.load("./3d assets/logo-gl.svg", function (data) {
       const paths = data.paths;
 
       const material = new THREE.MeshPhysicalMaterial({
-        color: 0xe8e8ea,
+        color: 0xe7e7e8,
         metalness: 1,
-        roughness: 0.14,
-        clearcoat: 0.35,
-        clearcoatRoughness: 0.12,
-        reflectivity: 1
+        roughness: 0.26,
+        clearcoat: 0.18,
+        clearcoatRoughness: 0.16,
+        reflectivity: 0.88
       });
 
       paths.forEach((path) => {
@@ -106,22 +113,21 @@
             bevelEnabled: false
           });
 
+          geometry.computeVertexNormals();
+
           const mesh = new THREE.Mesh(geometry, material);
           logoGroup.add(mesh);
         });
       });
 
-      // Centrage global du logo
       const box = new THREE.Box3().setFromObject(logoGroup);
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
 
       logoGroup.position.set(-center.x, -center.y, -center.z);
 
-      // Inclinaison légère pour lire le volume
       logoPivot.rotation.x = 0.12;
 
-      // Ajustement auto du cadre orthographique
       const maxDim = Math.max(size.x, size.y, size.z);
       const margin = 1.8;
       const newFrustumSize = maxDim * margin;
