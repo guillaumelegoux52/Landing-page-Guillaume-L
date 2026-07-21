@@ -26,6 +26,12 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/SVGLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
 
   <script>
     const canvas = document.getElementById("canvas3d");
@@ -74,18 +80,17 @@
     rimLight.position.set(0, 30, -220);
     scene.add(rimLight);
 
-    const underGlow = new THREE.DirectionalLight(0xffa15a, 1.9);
+    const underGlow = new THREE.DirectionalLight(0xff8a2a, 3.1);
     underGlow.position.set(0, -220, 140);
     scene.add(underGlow);
 
-    const warmBounce = new THREE.AmbientLight(0xffb37a, 0.08);
+    const warmBounce = new THREE.AmbientLight(0xffa45c, 0.14);
     scene.add(warmBounce);
 
     // Pivot parent
     const logoPivot = new THREE.Group();
     scene.add(logoPivot);
 
-    // Groupe du logo
     const logoGroup = new THREE.Group();
     logoGroup.scale.y = -1;
     logoPivot.add(logoGroup);
@@ -135,12 +140,25 @@
       updateCamera(newFrustumSize);
     });
 
+    // Post-processing
+    const composer = new THREE.EffectComposer(renderer);
+    const renderPass = new THREE.RenderPass(scene, camera);
+    composer.addPass(renderPass);
+
+    const bloomPass = new THREE.UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      0.85,
+      1.8,
+      0.35
+    );
+    composer.addPass(bloomPass);
+
     function animate() {
       requestAnimationFrame(animate);
 
       logoPivot.rotation.y += 0.01;
 
-      renderer.render(scene, camera);
+      composer.render();
     }
 
     animate();
@@ -155,6 +173,7 @@
 
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
+      composer.setSize(window.innerWidth, window.innerHeight);
     }
 
     window.addEventListener("resize", () => {
