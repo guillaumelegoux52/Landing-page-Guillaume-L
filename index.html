@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Logo 3D</title>
+  <title>Logo 3D Glow Anti-Banding</title>
+
 
   <style>
     html, body {
@@ -14,43 +15,98 @@
       background: #000;
     }
 
+
+    body {
+      position: relative;
+    }
+
+
     #canvas3d {
       display: block;
       width: 100vw;
       height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+
+    .glow-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255,140,40,0.12) 0%, rgba(255,140,40,0.06) 18%, rgba(255,140,40,0.015) 34%, rgba(0,0,0,0) 52%),
+        radial-gradient(circle at 50% 58%, rgba(255,220,170,0.04) 0%, rgba(255,220,170,0.015) 20%, rgba(0,0,0,0) 42%);
+      mix-blend-mode: screen;
+      opacity: 0.84;
+    }
+
+
+    .grain-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+      opacity: 0.055;
+      background-image:
+        repeating-radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08) 0 1px, transparent 1px 3px),
+        repeating-radial-gradient(circle at 80% 30%, rgba(255,255,255,0.05) 0 1px, transparent 1px 4px),
+        repeating-radial-gradient(circle at 40% 80%, rgba(255,255,255,0.06) 0 1px, transparent 1px 3px);
+      mix-blend-mode: soft-light;
+      animation: grainShift 0.22s steps(2) infinite;
+    }
+
+
+    @keyframes grainShift {
+      0%   { transform: translate(0, 0); }
+      25%  { transform: translate(-1%, 1%); }
+      50%  { transform: translate(1%, -1%); }
+      75%  { transform: translate(0.5%, 1%); }
+      100% { transform: translate(0, 0); }
     }
   </style>
 </head>
 <body>
   <canvas id="canvas3d"></canvas>
+  <div class="glow-overlay"></div>
+  <div class="grain-overlay"></div>
+
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/SVGLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/SSAARenderPass.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+
 
   <script>
     const canvas = document.getElementById("canvas3d");
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
 
+
     const renderer = new THREE.WebGLRenderer({
       canvas: canvas,
-      antialias: true
+      antialias: true,
+      powerPreference: "high-performance"
     });
+
+
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    renderer.toneMappingExposure = 1.72;
 
-    // Caméra orthographique
+
     const aspect = window.innerWidth / window.innerHeight;
     const frustumSize = 260;
+
 
     const camera = new THREE.OrthographicCamera(
       (-frustumSize * aspect) / 2,
@@ -61,56 +117,71 @@
       2000
     );
 
+
     camera.position.set(0, 0, 500);
     camera.lookAt(0, 0, 0);
 
+
     // Lumières
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.12);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.14);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.1);
     keyLight.position.set(150, 140, 220);
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xd9e2ff, 0.6);
+
+    const fillLight = new THREE.DirectionalLight(0xd9e2ff, 0.75);
     fillLight.position.set(-160, 40, 120);
     scene.add(fillLight);
 
-    const rimLight = new THREE.DirectionalLight(0xffffff, 1.0);
+
+    const rimLight = new THREE.DirectionalLight(0xffffff, 1.22);
     rimLight.position.set(0, 30, -220);
     scene.add(rimLight);
 
-    const underGlow = new THREE.DirectionalLight(0xff8a2a, 3.1);
+
+    const underGlow = new THREE.DirectionalLight(0xff7417, 3.3);
     underGlow.position.set(0, -220, 140);
     scene.add(underGlow);
 
-    const warmBounce = new THREE.AmbientLight(0xffa45c, 0.14);
+
+    const warmBounce = new THREE.AmbientLight(0xff9a52, 0.16);
     scene.add(warmBounce);
 
-    // Pivot parent
+
+    // Groupe du logo
     const logoPivot = new THREE.Group();
     scene.add(logoPivot);
+
 
     const logoGroup = new THREE.Group();
     logoGroup.scale.y = -1;
     logoPivot.add(logoGroup);
 
+
     const svgLoader = new THREE.SVGLoader();
+
 
     svgLoader.load("./3d assets/logo-gl.svg", function (data) {
       const paths = data.paths;
 
+
       const material = new THREE.MeshPhysicalMaterial({
-        color: 0xe7e7e8,
+        color: 0xf4efe9,
         metalness: 1,
-        roughness: 0.26,
-        clearcoat: 0.18,
-        clearcoatRoughness: 0.16,
-        reflectivity: 0.88
+        roughness: 0.18,
+        clearcoat: 0.30,
+        clearcoatRoughness: 0.08,
+        reflectivity: 1,
+        dithering: true
       });
+
 
       paths.forEach((path) => {
         const shapes = THREE.SVGLoader.createShapes(path);
+
 
         shapes.forEach((shape) => {
           const geometry = new THREE.ExtrudeGeometry(shape, {
@@ -118,63 +189,99 @@
             bevelEnabled: false
           });
 
+
           geometry.computeVertexNormals();
+
 
           const mesh = new THREE.Mesh(geometry, material);
           logoGroup.add(mesh);
         });
       });
 
+
       const box = new THREE.Box3().setFromObject(logoGroup);
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
 
+
       logoGroup.position.set(-center.x, -center.y, -center.z);
+
 
       logoPivot.rotation.x = 0.12;
 
+
       const maxDim = Math.max(size.x, size.y, size.z);
-      const margin = 1.8;
+      const margin = 1.85;
       const newFrustumSize = maxDim * margin;
+
 
       updateCamera(newFrustumSize);
     });
 
-    // Post-processing
-    const composer = new THREE.EffectComposer(renderer);
-    const renderPass = new THREE.RenderPass(scene, camera);
-    composer.addPass(renderPass);
+
+    const renderTarget = new THREE.WebGLRenderTarget(
+      window.innerWidth,
+      window.innerHeight,
+      {
+        format: THREE.RGBAFormat,
+        encoding: THREE.sRGBEncoding,
+        type: THREE.HalfFloatType,
+        depthBuffer: true,
+        stencilBuffer: false
+      }
+    );
+
+
+    const composer = new THREE.EffectComposer(renderer, renderTarget);
+
+
+    const ssaaPass = new THREE.SSAARenderPass(scene, camera);
+    ssaaPass.sampleLevel = 2;
+    ssaaPass.unbiased = true;
+    composer.addPass(ssaaPass);
+
 
     const bloomPass = new THREE.UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
-      0.85,
-      1.8,
-      0.35
+      1.05,
+      0.72,
+      0.12
     );
+    bloomPass.threshold = 0.05;
+    bloomPass.strength = 3.05;
+    bloomPass.radius = 0.42;
     composer.addPass(bloomPass);
+
 
     function animate() {
       requestAnimationFrame(animate);
 
+
       logoPivot.rotation.y += 0.01;
+
 
       composer.render();
     }
 
+
     animate();
+
 
     function updateCamera(frustum = 260) {
       const aspect = window.innerWidth / window.innerHeight;
+
 
       camera.left = (-frustum * aspect) / 2;
       camera.right = (frustum * aspect) / 2;
       camera.top = frustum / 2;
       camera.bottom = -frustum / 2;
 
+
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
       composer.setSize(window.innerWidth, window.innerHeight);
     }
+
 
     window.addEventListener("resize", () => {
       updateCamera();
