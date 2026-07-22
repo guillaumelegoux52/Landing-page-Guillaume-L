@@ -22,7 +22,7 @@
       <nav aria-label="Projets du portfolio">
         <ul class="projects-list">
           <li class="project-item">
-            <a class="project-link" href="#projet-1">
+            <a class="project-link" href="#projet-1" id="gift-trigger">
               <span class="project-meta">clothing</span>
               <span class="project-title">GIFT</span>
             </a>
@@ -44,7 +44,7 @@
 
           <li class="project-item">
             <a class="project-link" href="#projet-4">
-              <span class="project-meta">illustration</span>
+              <span class="project-meta">illus</span>
               <span class="project-title">LOEWE</span>
             </a>
           </li>
@@ -63,6 +63,30 @@
       <div>© 2026</div>
       <div>Basé à Paris</div>
     </footer>
+  </div>
+
+  <div class="project-popup-overlay" id="gift-popup-overlay" aria-hidden="true">
+    <div
+      class="project-popup"
+      id="gift-popup"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="gift-popup-title"
+    >
+      <button
+        class="project-popup-close"
+        id="gift-popup-close"
+        type="button"
+        aria-label="Fermer la fenêtre"
+      >
+        ×
+      </button>
+
+      <div class="project-popup-content">
+        <h2 class="project-popup-title" id="gift-popup-title">GIFT</h2>
+        <p class="project-popup-text">Contenu à venir.</p>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>

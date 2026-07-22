@@ -166,3 +166,47 @@ animate();
 window.addEventListener("resize", function () {
   updateCamera();
 });
+
+/* Popup GIFT */
+const giftTrigger = document.getElementById("gift-trigger");
+const giftPopupOverlay = document.getElementById("gift-popup-overlay");
+const giftPopupClose = document.getElementById("gift-popup-close");
+
+function openGiftPopup() {
+  if (!giftPopupOverlay) return;
+  giftPopupOverlay.classList.add("is-open");
+  giftPopupOverlay.setAttribute("aria-hidden", "false");
+}
+
+function closeGiftPopup() {
+  if (!giftPopupOverlay) return;
+  giftPopupOverlay.classList.remove("is-open");
+  giftPopupOverlay.setAttribute("aria-hidden", "true");
+}
+
+if (giftTrigger) {
+  giftTrigger.addEventListener("click", function (event) {
+    event.preventDefault();
+    openGiftPopup();
+  });
+}
+
+if (giftPopupClose) {
+  giftPopupClose.addEventListener("click", function () {
+    closeGiftPopup();
+  });
+}
+
+if (giftPopupOverlay) {
+  giftPopupOverlay.addEventListener("click", function (event) {
+    if (event.target === giftPopupOverlay) {
+      closeGiftPopup();
+    }
+  });
+}
+
+document.addEventListener("keydown", function (event) {
+  if (event.key === "Escape") {
+    closeGiftPopup();
+  }
+});
