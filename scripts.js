@@ -1,109 +1,168 @@
-import * as THREE from "https://unpkg.com/three@0.167.1/build/three.module.js";
+const canvas = document.getElementById("canvas3d");
 
-console.log("script chargé");
+if (!window.THREE) {
+  throw new Error("Three.js n'est pas chargé.");
+}
 
-const container = document.getElementById("three-container");
-
-// Scène
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
 
-// Caméra
-const camera = new THREE.PerspectiveCamera(
-  60,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  100
-);
-camera.position.z = 4;
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: true,
+  powerPreference: "high-performance"
+});
 
-// Renderer
-const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setClearColor(0x000000, 1);
-container.appendChild(renderer.domElement);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.72;
 
-// Géométrie
-const geometry = new THREE.SphereGeometry(1, 128, 128);
+const baseFrustumSize = 260;
+let currentFrustumSize = baseFrustumSize;
 
-// Matériau argent brossé doux
-const material = new THREE.MeshStandardMaterial({
-  color: 0xcfcfcf,
-  roughness: 0.32,
-  metalness: 0.82
-});
+const camera = new THREE.OrthographicCamera(
+  (-baseFrustumSize * (window.innerWidth / window.innerHeight)) / 2,
+  (baseFrustumSize * (window.innerWidth / window.innerHeight)) / 2,
+  baseFrustumSize / 2,
+  -baseFrustumSize / 2,
+  0.1,
+  2000
+);
 
-const sphere = new THREE.Mesh(geometry, material);
-scene.add(sphere);
+camera.position.set(0, 0, 500);
+camera.lookAt(0, 0, 0);
 
-// Lumières
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.14);
 scene.add(ambientLight);
 
-const light1 = new THREE.DirectionalLight(0xffffff, 2.8);
-light1.position.set(3, 2, 4);
-scene.add(light1);
+const keyLight = new THREE.DirectionalLight(0xffffff, 2.1);
+keyLight.position.set(150, 140, 220);
+scene.add(keyLight);
 
-const light2 = new THREE.DirectionalLight(0xffffff, 1.6);
-light2.position.set(-3, -2, 3);
-scene.add(light2);
+const fillLight = new THREE.DirectionalLight(0xd9e2ff, 0.75);
+fillLight.position.set(-160, 40, 120);
+scene.add(fillLight);
 
-// Variables de rotation manuelle
-let isDragging = false;
-let previousMouseX = 0;
-let previousMouseY = 0;
+const rimLight = new THREE.DirectionalLight(0xffffff, 1.22);
+rimLight.position.set(0, 30, -220);
+scene.add(rimLight);
 
-let targetRotationX = 0;
-let targetRotationY = 0;
+const underGlow = new THREE.DirectionalLight(0xff7417, 3.3);
+underGlow.position.set(0, -220, 140);
+scene.add(underGlow);
 
-let currentRotationX = 0;
-let currentRotationY = 0;
+const warmBounce = new THREE.AmbientLight(0xff9a52, 0.16);
+scene.add(warmBounce);
 
-// Quand on appuie sur le clic
-window.addEventListener("mousedown", (event) => {
-  isDragging = true;
-  previousMouseX = event.clientX;
-  previousMouseY = event.clientY;
-});
+const logoPivot = new THREE.Group();
+scene.add(logoPivot);
 
-// Quand on relâche
-window.addEventListener("mouseup", () => {
-  isDragging = false;
-});
+const logoGroup = new THREE.Group();
+logoGroup.scale.y = -1;
+logoPivot.add(logoGroup);
 
-// Quand la souris bouge
-window.addEventListener("mousemove", (event) => {
-  if (!isDragging) return;
+const renderTarget = new THREE.WebGLRenderTarget(
+  window.innerWidth,
+  window.innerHeight,
+  {
+    format: THREE.RGBAFormat,
+    encoding: THREE.sRGBEncoding,
+    type: THREE.HalfFloatType,
+    depthBuffer: true,
+    stencilBuffer: false
+  }
+);
 
-  const deltaX = event.clientX - previousMouseX;
-  const deltaY = event.clientY - previousMouseY;
+const composer = new THREE.EffectComposer(renderer, renderTarget);
 
-  targetRotationY += deltaX * 0.01;
-  targetRotationX += deltaY * 0.01;
+const ssaaPass = new THREE.SSAARenderPass(scene, camera);
+ssaaPass.sampleLevel = 2;
+ssaaPass.unbiased = true;
+composer.addPass(ssaaPass);
 
-  previousMouseX = event.clientX;
-  previousMouseY = event.clientY;
-});
+const bloomPass = new THREE.UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  1.05,
+  0.72,
+  0.12
+);
+bloomPass.threshold = 0.05;
+bloomPass.strength = 3.05;
+bloomPass.radius = 0.42;
+composer.addPass(bloomPass);
 
-// Animation
+function updateCamera(frustum = currentFrustumSize) {
+  currentFrustumSize = frustum;
+
+  const aspect = window.innerWidth / window.innerHeight;
+  camera.left = (-frustum * aspect) / 2;
+  camera.right = (frustum * aspect) / 2;
+  camera.top = frustum / 2;
+  camera.bottom = -frustum / 2;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+}
+
+const svgLoader = new THREE.SVGLoader();
+
+svgLoader.load(
+  "./3d assets/logo-gl.svg",
+  function (data) {
+    const material = new THREE.MeshPhysicalMaterial({
+      color: 0xf4efe9,
+      metalness: 1,
+      roughness: 0.18,
+      clearcoat: 0.30,
+      clearcoatRoughness: 0.08,
+      reflectivity: 1,
+      dithering: true
+    });
+
+    data.paths.forEach(function (path) {
+      const shapes = THREE.SVGLoader.createShapes(path);
+
+      shapes.forEach(function (shape) {
+        const geometry = new THREE.ExtrudeGeometry(shape, {
+          depth: 32,
+          bevelEnabled: false
+        });
+
+        geometry.computeVertexNormals();
+
+        const mesh = new THREE.Mesh(geometry, material);
+        logoGroup.add(mesh);
+      });
+    });
+
+    const box = new THREE.Box3().setFromObject(logoGroup);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+
+    logoGroup.position.set(-center.x, -center.y, -center.z);
+    logoPivot.rotation.x = 0.12;
+
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const margin = 1.85;
+    updateCamera(maxDim * margin);
+  },
+  undefined,
+  function (error) {
+    console.error("Erreur chargement SVG :", error);
+  }
+);
+
 function animate() {
   requestAnimationFrame(animate);
-
-  currentRotationX += (targetRotationX - currentRotationX) * 0.08;
-  currentRotationY += (targetRotationY - currentRotationY) * 0.08;
-
-  sphere.rotation.x = currentRotationX;
-  sphere.rotation.y = currentRotationY;
-
-  renderer.render(scene, camera);
+  logoPivot.rotation.y += 0.01;
+  composer.render();
 }
 
 animate();
 
-// Resize
-window.addEventListener("resize", () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+window.addEventListener("resize", function () {
+  updateCamera();
 });
