@@ -167,46 +167,56 @@ window.addEventListener("resize", function () {
   updateCamera();
 });
 
-/* Popup GIFT */
-const giftTrigger = document.getElementById("gift-trigger");
-const giftPopupOverlay = document.getElementById("gift-popup-overlay");
-const giftPopupClose = document.getElementById("gift-popup-close");
+const popupBindings = [
+  {
+    trigger: document.getElementById("gift-trigger"),
+    overlay: document.getElementById("gift-popup-overlay"),
+    close: document.getElementById("gift-popup-close")
+  },
+  {
+    trigger: document.getElementById("luxor-trigger"),
+    overlay: document.getElementById("luxor-popup-overlay"),
+    close: document.getElementById("luxor-popup-close")
+  }
+];
 
-function openGiftPopup() {
-  if (!giftPopupOverlay) return;
-  giftPopupOverlay.classList.add("is-open");
-  giftPopupOverlay.setAttribute("aria-hidden", "false");
-}
-
-function closeGiftPopup() {
-  if (!giftPopupOverlay) return;
-  giftPopupOverlay.classList.remove("is-open");
-  giftPopupOverlay.setAttribute("aria-hidden", "true");
-}
-
-if (giftTrigger) {
-  giftTrigger.addEventListener("click", function (event) {
-    event.preventDefault();
-    openGiftPopup();
+function closeAllPopups() {
+  popupBindings.forEach(function ({ overlay }) {
+    if (!overlay) return;
+    overlay.classList.remove("is-open");
+    overlay.setAttribute("aria-hidden", "true");
   });
 }
 
-if (giftPopupClose) {
-  giftPopupClose.addEventListener("click", function () {
-    closeGiftPopup();
-  });
-}
+popupBindings.forEach(function ({ trigger, overlay, close }) {
+  if (trigger && overlay) {
+    trigger.addEventListener("click", function (event) {
+      event.preventDefault();
+      closeAllPopups();
+      overlay.classList.add("is-open");
+      overlay.setAttribute("aria-hidden", "false");
+    });
+  }
 
-if (giftPopupOverlay) {
-  giftPopupOverlay.addEventListener("click", function (event) {
-    if (event.target === giftPopupOverlay) {
-      closeGiftPopup();
-    }
-  });
-}
+  if (close && overlay) {
+    close.addEventListener("click", function () {
+      overlay.classList.remove("is-open");
+      overlay.setAttribute("aria-hidden", "true");
+    });
+  }
+
+  if (overlay) {
+    overlay.addEventListener("click", function (event) {
+      if (event.target === overlay) {
+        overlay.classList.remove("is-open");
+        overlay.setAttribute("aria-hidden", "true");
+      }
+    });
+  }
+});
 
 document.addEventListener("keydown", function (event) {
   if (event.key === "Escape") {
-    closeGiftPopup();
+    closeAllPopups();
   }
 });

@@ -29,7 +29,7 @@
           </li>
 
           <li class="project-item">
-            <a class="project-link" href="#projet-2">
+            <a class="project-link" href="#projet-2" id="luxor-trigger">
               <span class="project-meta">3D</span>
               <span class="project-title">LUXOR</span>
             </a>
@@ -44,7 +44,7 @@
 
           <li class="project-item">
             <a class="project-link" href="#projet-4">
-              <span class="project-meta">illus</span>
+              <span class="project-meta">illustration</span>
               <span class="project-title">LOEWE</span>
             </a>
           </li>
@@ -67,24 +67,76 @@
 
   <div class="project-popup-overlay" id="gift-popup-overlay" aria-hidden="true">
     <div
-      class="project-popup"
+      class="project-popup project-popup--square"
       id="gift-popup"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="gift-popup-title"
+      aria-label="Fenêtre projet GIFT"
     >
       <button
         class="project-popup-close"
         id="gift-popup-close"
         type="button"
-        aria-label="Fermer la fenêtre"
+        aria-label="Fermer la fenêtre GIFT"
       >
         ×
       </button>
 
-      <div class="project-popup-content">
-        <h2 class="project-popup-title" id="gift-popup-title">GIFT</h2>
-        <p class="project-popup-text">Contenu à venir.</p>
+      <span class="project-popup-dot project-popup-dot--top-left"></span>
+      <span class="project-popup-dot project-popup-dot--top-right"></span>
+      <span class="project-popup-dot project-popup-dot--bottom-left"></span>
+      <span class="project-popup-dot project-popup-dot--bottom-right"></span>
+
+      <div class="project-popup-frame">
+        <div class="project-popup-media">
+          <img
+            class="project-popup-image"
+            src="./images/gift-800.webp"
+            alt="Visuel du projet GIFT"
+            width="800"
+            height="800"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="project-popup-overlay" id="luxor-popup-overlay" aria-hidden="true">
+    <div
+      class="project-popup project-popup--portrait"
+      id="luxor-popup"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Fenêtre projet LUXOR"
+    >
+      <button
+        class="project-popup-close"
+        id="luxor-popup-close"
+        type="button"
+        aria-label="Fermer la fenêtre LUXOR"
+      >
+        ×
+      </button>
+
+      <span class="project-popup-dot project-popup-dot--top-left"></span>
+      <span class="project-popup-dot project-popup-dot--top-right"></span>
+      <span class="project-popup-dot project-popup-dot--bottom-left"></span>
+      <span class="project-popup-dot project-popup-dot--bottom-right"></span>
+
+      <div class="project-popup-frame">
+        <div class="project-popup-media">
+          <img
+            class="project-popup-image"
+            src="./images/luxor-3d.webp"
+            alt="Visuel du projet LUXOR"
+            width="800"
+            height="1200"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
       </div>
     </div>
   </div>
