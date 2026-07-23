@@ -12,14 +12,15 @@
   --text-soft: rgba(255, 255, 255, 0.38);
   --text-faint: rgba(255, 255, 255, 0.22);
 
-  --project-color: #F5FAF7;
+  --project-color: #f3f1eb;
+  --project-color-dim: rgba(243, 241, 235, 0.08);
   --meta-color: #ff8a2a;
 
   --pad-x: clamp(20px, 2.8vw, 38px);
   --pad-y: clamp(18px, 2.2vw, 30px);
 
   --ui-small: clamp(12px, 0.72vw, 14px);
-  --project-size: clamp(42px, 6.2vw, 96px);
+  --project-size: clamp(38px, 5.6vw, 86px);
   --project-gap: clamp(14px, 1.25vw, 22px);
 
   --meta-size: clamp(11px, 0.9vw, 18px);
@@ -30,6 +31,8 @@
   --tracking-meta: 0.06em;
 
   --line-height-project: 0.92;
+  --project-reveal-y: 38%;
+  --project-rest-y: 0.08em;
 
   --transition-soft: 520ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-ui: 220ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -214,24 +217,91 @@ svg {
   min-width: max-content;
 }
 
+.project-title-mask {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  line-height: 1;
+  padding-top: 0.26em;
+  padding-bottom: 0.24em;
+  clip-path: inset(0 0 0 0);
+}
+
 .project-title {
+  position: relative;
+  display: inline-block;
   font-family: "Albertus Nova", serif;
   font-size: var(--project-size);
   line-height: var(--line-height-project);
   letter-spacing: var(--tracking-project);
   font-weight: 700;
-  color: var(--project-color);
-  opacity: 0.07;
+  color: var(--project-color-dim);
+  transform: translateY(calc(var(--project-reveal-y) + var(--project-rest-y)));
+  opacity: 0;
   filter: blur(0.4px);
-  text-shadow:
-    0 0 0 rgba(245, 250, 247, 0),
-    0 0 0 rgba(245, 250, 247, 0),
-    0 0 0 rgba(245, 250, 247, 0);
   transition:
-    opacity var(--transition-soft),
-    text-shadow var(--transition-soft),
-    filter var(--transition-soft),
-    color var(--transition-soft);
+    transform 780ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 380ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 780ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 520ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity, filter;
+}
+
+.project-title::after {
+  content: "";
+  position: absolute;
+  top: -18%;
+  bottom: -18%;
+  left: -32%;
+  width: 26%;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      105deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.04) 18%,
+      rgba(255, 248, 230, 0.92) 48%,
+      rgba(255, 184, 102, 0.42) 58%,
+      rgba(255, 255, 255, 0.03) 82%,
+      rgba(255, 255, 255, 0) 100%
+    );
+  mix-blend-mode: screen;
+  filter: blur(0.6px);
+  transform: translateX(0) skewX(-20deg);
+}
+
+.project-link:hover .project-title,
+.project-link:focus-visible .project-title {
+  transform: translateY(var(--project-rest-y));
+  opacity: 1;
+  filter: blur(0);
+  color: var(--project-color);
+}
+
+.project-link:hover .project-title::after,
+.project-link:focus-visible .project-title::after {
+  opacity: 1;
+  animation: metallicSweep 980ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes metallicSweep {
+  0% {
+    transform: translateX(-18%) skewX(-20deg);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(520%) skewX(-20deg);
+    opacity: 0;
+  }
 }
 
 .project-meta {
@@ -247,47 +317,25 @@ svg {
   font-weight: 700;
   color: var(--meta-color);
   text-transform: uppercase;
-  opacity: 0.07;
-  filter: blur(0.35px);
-  text-shadow:
-    0 0 0 rgba(255, 138, 42, 0),
-    0 0 0 rgba(255, 138, 42, 0),
-    0 0 0 rgba(255, 138, 42, 0),
-    0 0 0 rgba(255, 138, 42, 0);
+  opacity: 0.05;
+  filter: blur(0.25px);
   transition:
-    opacity var(--transition-soft),
-    text-shadow var(--transition-soft),
-    filter var(--transition-soft),
-    color var(--transition-soft);
-}
-
-.project-link:hover .project-title,
-.project-link:focus-visible .project-title {
-  opacity: 1;
-  filter: blur(0);
-  text-shadow:
-    0 0 6px rgba(245, 250, 247, 0.28),
-    0 0 18px rgba(245, 250, 247, 0.18),
-    0 0 42px rgba(245, 250, 247, 0.10);
+    opacity 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 520ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .project-link:hover .project-meta,
 .project-link:focus-visible .project-meta {
   opacity: 1;
   filter: blur(0);
-  text-shadow:
-    0 0 8px rgba(255, 138, 42, 0.55),
-    0 0 18px rgba(255, 138, 42, 0.42),
-    0 0 34px rgba(255, 138, 42, 0.28),
-    0 0 58px rgba(255, 138, 42, 0.16);
 }
 
 .project-link:focus-visible {
   outline: none;
 }
 
-.project-link:focus-visible .project-title {
-  outline: 2px solid rgba(245, 250, 247, 0.55);
+.project-link:focus-visible .project-title-mask {
+  outline: 2px solid rgba(245, 250, 247, 0.26);
   outline-offset: 10px;
 }
 
@@ -428,7 +476,7 @@ svg {
   border: 1px solid rgba(255, 138, 42, 0.18);
   background: rgba(0, 0, 0, 0.78);
   color: rgba(255, 138, 42, 0.92);
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1;
   cursor: pointer;
   transition:
@@ -469,6 +517,8 @@ svg {
     --project-size: clamp(28px, 10vw, 52px);
     --meta-size: 10px;
     --meta-offset: 18px;
+    --project-reveal-y: 30%;
+    --project-rest-y: 0.06em;
     --popup-size-square: min(calc(100vw - 32px), calc(100vh - 32px));
     --popup-size-portrait-height: min(calc(100vh - 32px), 78vh);
     --popup-size-portrait-width: min(calc(100vw - 32px), 78vw);
@@ -496,6 +546,11 @@ svg {
     top: auto;
   }
 
+  .project-title-mask {
+    padding-top: 0.2em;
+    padding-bottom: 0.18em;
+  }
+
   .project-popup-overlay {
     padding: 16px;
   }
@@ -519,12 +574,24 @@ svg {
   .site-header a,
   .site-footer a,
   .project-title,
+  .project-title::after,
   .project-meta,
   .project-popup-overlay,
   .project-popup,
   .project-popup-close {
     transition: none;
+    animation: none;
     filter: none;
+  }
+
+  .project-title {
+    transform: translateY(var(--project-rest-y));
+    opacity: 0;
+  }
+
+  .project-link:hover .project-title,
+  .project-link:focus-visible .project-title {
+    opacity: 1;
   }
 
   .project-popup {
