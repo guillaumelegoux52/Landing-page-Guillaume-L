@@ -1,9 +1,5 @@
 const canvas = document.getElementById("canvas3d");
 
-if (!canvas) {
-  throw new Error("Canvas #canvas3d introuvable.");
-}
-
 if (!window.THREE) {
   throw new Error("Three.js n'est pas chargé.");
 }
@@ -14,22 +10,13 @@ scene.background = new THREE.Color(0x000000);
 const renderer = new THREE.WebGLRenderer({
   canvas,
   antialias: true,
-  alpha: false,
   powerPreference: "high-performance"
 });
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-if ("outputColorSpace" in renderer && THREE.SRGBColorSpace) {
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-} else if ("outputEncoding" in renderer && THREE.sRGBEncoding) {
-  renderer.outputEncoding = THREE.sRGBEncoding;
-}
-
-if ("toneMapping" in renderer && THREE.ACESFilmicToneMapping) {
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-}
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.72;
 
 const baseFrustumSize = 260;
@@ -76,48 +63,35 @@ const logoGroup = new THREE.Group();
 logoGroup.scale.y = -1;
 logoPivot.add(logoGroup);
 
-const renderTargetOptions = {
-  format: THREE.RGBAFormat,
-  depthBuffer: true,
-  stencilBuffer: false
-};
-
-if (THREE.HalfFloatType) {
-  renderTargetOptions.type = THREE.HalfFloatType;
-}
-
 const renderTarget = new THREE.WebGLRenderTarget(
   window.innerWidth,
   window.innerHeight,
-  renderTargetOptions
+  {
+    format: THREE.RGBAFormat,
+    encoding: THREE.sRGBEncoding,
+    type: THREE.HalfFloatType,
+    depthBuffer: true,
+    stencilBuffer: false
+  }
 );
 
-const hasComposer =
-  typeof THREE.EffectComposer !== "undefined" &&
-  typeof THREE.SSAARenderPass !== "undefined" &&
-  typeof THREE.UnrealBloomPass !== "undefined";
+const composer = new THREE.EffectComposer(renderer, renderTarget);
 
-let composer = null;
+const ssaaPass = new THREE.SSAARenderPass(scene, camera);
+ssaaPass.sampleLevel = 2;
+ssaaPass.unbiased = true;
+composer.addPass(ssaaPass);
 
-if (hasComposer) {
-  composer = new THREE.EffectComposer(renderer, renderTarget);
-
-  const ssaaPass = new THREE.SSAARenderPass(scene, camera);
-  ssaaPass.sampleLevel = 2;
-  ssaaPass.unbiased = true;
-  composer.addPass(ssaaPass);
-
-  const bloomPass = new THREE.UnrealBloomPass(
-    new THREE.Vector2(window.innerWidth, window.innerHeight),
-    1.05,
-    0.72,
-    0.12
-  );
-  bloomPass.threshold = 0.05;
-  bloomPass.strength = 3.05;
-  bloomPass.radius = 0.42;
-  composer.addPass(bloomPass);
-}
+const bloomPass = new THREE.UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  1.05,
+  0.72,
+  0.12
+);
+bloomPass.threshold = 0.05;
+bloomPass.strength = 3.05;
+bloomPass.radius = 0.42;
+composer.addPass(bloomPass);
 
 function updateCamera(frustum = currentFrustumSize) {
   currentFrustumSize = frustum;
@@ -130,106 +104,63 @@ function updateCamera(frustum = currentFrustumSize) {
   camera.updateProjectionMatrix();
 
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-  if (composer) {
-    composer.setSize(window.innerWidth, window.innerHeight);
-  }
+  composer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function loadLogo() {
-  if (typeof THREE.SVGLoader === "undefined") {
-    console.warn("SVGLoader n'est pas chargé.");
-    return;
-  }
+const svgLoader = new THREE.SVGLoader();
 
-  const svgLoader = new THREE.SVGLoader();
+svgLoader.load(
+  "./3d assets/logo-gl.svg",
+  function (data) {
+    const material = new THREE.MeshPhysicalMaterial({
+      color: 0xf4efe9,
+      metalness: 1,
+      roughness: 0.18,
+      clearcoat: 0.30,
+      clearcoatRoughness: 0.08,
+      reflectivity: 1,
+      dithering: true
+    });
 
-  svgLoader.load(
-    "./3d assets/logo-gl.svg",
-    function (data) {
-      while (logoGroup.children.length) {
-        const child = logoGroup.children[0];
-        logoGroup.remove(child);
+    data.paths.forEach(function (path) {
+      const shapes = THREE.SVGLoader.createShapes(path);
 
-        if (child.geometry) {
-          child.geometry.dispose();
-        }
-
-        if (child.material) {
-          if (Array.isArray(child.material)) {
-            child.material.forEach((material) => material.dispose && material.dispose());
-          } else if (child.material.dispose) {
-            child.material.dispose();
-          }
-        }
-      }
-
-      const material = new THREE.MeshPhysicalMaterial({
-        color: 0xf4efe9,
-        metalness: 1,
-        roughness: 0.18,
-        clearcoat: 0.3,
-        clearcoatRoughness: 0.08,
-        reflectivity: 1,
-        dithering: true
-      });
-
-      data.paths.forEach(function (path) {
-        const shapes = THREE.SVGLoader.createShapes(path);
-
-        shapes.forEach(function (shape) {
-          const geometry = new THREE.ExtrudeGeometry(shape, {
-            depth: 32,
-            bevelEnabled: false
-          });
-
-          geometry.computeVertexNormals();
-
-          const mesh = new THREE.Mesh(geometry, material);
-          logoGroup.add(mesh);
+      shapes.forEach(function (shape) {
+        const geometry = new THREE.ExtrudeGeometry(shape, {
+          depth: 32,
+          bevelEnabled: false
         });
+
+        geometry.computeVertexNormals();
+
+        const mesh = new THREE.Mesh(geometry, material);
+        logoGroup.add(mesh);
       });
+    });
 
-      const box = new THREE.Box3().setFromObject(logoGroup);
-      const center = box.getCenter(new THREE.Vector3());
-      const size = box.getSize(new THREE.Vector3());
+    const box = new THREE.Box3().setFromObject(logoGroup);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
 
-      logoGroup.position.set(-center.x, -center.y, -center.z);
-      logoPivot.rotation.x = 0.12;
+    logoGroup.position.set(-center.x, -center.y, -center.z);
+    logoPivot.rotation.x = 0.12;
 
-      const maxDim = Math.max(size.x, size.y, size.z);
-      const margin = 1.85;
-
-      if (Number.isFinite(maxDim) && maxDim > 0) {
-        updateCamera(maxDim * margin);
-      } else {
-        updateCamera(baseFrustumSize);
-      }
-    },
-    undefined,
-    function (error) {
-      console.error("Erreur chargement SVG :", error);
-    }
-  );
-}
-
-function renderScene() {
-  if (composer) {
-    composer.render();
-  } else {
-    renderer.render(scene, camera);
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const margin = 1.85;
+    updateCamera(maxDim * margin);
+  },
+  undefined,
+  function (error) {
+    console.error("Erreur chargement SVG :", error);
   }
-}
+);
 
 function animate() {
   requestAnimationFrame(animate);
   logoPivot.rotation.y += 0.01;
-  renderScene();
+  composer.render();
 }
 
-updateCamera();
-loadLogo();
 animate();
 
 window.addEventListener("resize", function () {
