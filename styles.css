@@ -258,7 +258,7 @@ svg {
   will-change: transform, opacity, filter;
 }
 
-/* EFFET DE LIGHT SWEEP (Reflet Chrome / Métal liquide) */
+/* EFFET DE LIGHT SWEEP (Réaction immédiate) */
 .project-title::after {
   content: attr(data-text);
   position: absolute;
@@ -283,8 +283,8 @@ svg {
     transparent 100%
   );
   
-  background-size: 200% 100%;
-  background-position: -100% 0;
+  background-size: 250% 100%;
+  background-position: -90% 0;
   background-repeat: no-repeat;
 
   -webkit-background-clip: text;
@@ -292,7 +292,7 @@ svg {
   -webkit-text-fill-color: transparent;
   color: transparent;
 
-  opacity: 0;
+  opacity: 1;
 }
 
 .project-link:hover .project-title,
@@ -305,23 +305,16 @@ svg {
 
 .project-link:hover .project-title::after,
 .project-link:focus-visible .project-title::after {
-  animation: metallicSweep 950ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: metallicSweep 2800ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Trajectoire ajustée : démarre à -90% pour toucher le texte instantanément */
 @keyframes metallicSweep {
   0% {
-    background-position: -100% 0;
-    opacity: 0;
-  }
-  20% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 1;
+    background-position: -90% 0;
   }
   100% {
-    background-position: 120% 0;
-    opacity: 0;
+    background-position: 210% 0;
   }
 }
 
