@@ -167,6 +167,7 @@ window.addEventListener("resize", function () {
   updateCamera();
 });
 
+// Liaison des 5 projets (GIFT, LUXOR, CURRUS, LOEWE, COZE MAG)
 const popupBindings = [
   {
     trigger: document.getElementById("gift-trigger"),
@@ -177,6 +178,21 @@ const popupBindings = [
     trigger: document.getElementById("luxor-trigger"),
     overlay: document.getElementById("luxor-popup-overlay"),
     close: document.getElementById("luxor-popup-close")
+  },
+  {
+    trigger: document.getElementById("currus-trigger"),
+    overlay: document.getElementById("currus-popup-overlay"),
+    close: document.getElementById("currus-popup-close")
+  },
+  {
+    trigger: document.getElementById("loewe-trigger"),
+    overlay: document.getElementById("loewe-popup-overlay"),
+    close: document.getElementById("loewe-popup-close")
+  },
+  {
+    trigger: document.getElementById("coze-trigger"),
+    overlay: document.getElementById("coze-popup-overlay"),
+    close: document.getElementById("coze-popup-close")
   }
 ];
 
@@ -193,6 +209,11 @@ popupBindings.forEach(function ({ trigger, overlay, close }) {
     trigger.addEventListener("click", function (event) {
       event.preventDefault();
       closeAllPopups();
+
+      // Trigger reflow pour rejouer l'animation laser scan à chaque ouverture
+      overlay.classList.remove("is-open");
+      void overlay.offsetWidth;
+
       overlay.classList.add("is-open");
       overlay.setAttribute("aria-hidden", "false");
     });

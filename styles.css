@@ -258,7 +258,6 @@ svg {
   will-change: transform, opacity, filter;
 }
 
-/* EFFET DE LIGHT SWEEP (Metallic) */
 .project-title::after {
   content: attr(data-text);
   position: absolute;
@@ -353,7 +352,7 @@ svg {
 }
 
 /* ==========================================================================
-   POPUP & ANIMATION DU CADRE ("HUD EXPANSION")
+   POPUP HUD SCI-FI
    ========================================================================== */
 
 .project-popup-overlay {
@@ -364,8 +363,8 @@ svg {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(10px);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -387,51 +386,56 @@ svg {
   overflow: visible;
 }
 
+/* Format Carré (GIFT, CURRUS, LOEWE) */
 .project-popup--square {
   width: var(--popup-size-square);
   aspect-ratio: 1 / 1;
 }
 
+/* Format Portrait LUXOR (Ratio 2:3) */
 .project-popup--portrait {
   width: min(var(--popup-size-portrait-width), calc(var(--popup-size-portrait-height) * 0.6667));
   aspect-ratio: 2 / 3;
 }
 
-/* Cadre animé */
+/* Format Portrait COZE MAG (Ratio exact 621:875) */
+.project-popup--coze {
+  width: min(var(--popup-size-portrait-width), calc(var(--popup-size-portrait-height) * (621 / 875)));
+  aspect-ratio: 621 / 875;
+}
+
 .project-popup-frame {
   position: absolute;
-  inset: 50%; /* Position initiale : réduit à un point central */
+  inset: 50%;
   opacity: 0;
-  background: rgba(0, 0, 0, 0.94);
-  border: 1px solid rgba(255, 138, 42, 0.62);
+  background: rgba(3, 3, 4, 0.96);
+  border: 1px solid rgba(255, 138, 42, 0.65);
   box-shadow:
     0 0 0 1px rgba(255, 138, 42, 0.12),
-    0 0 30px rgba(255, 138, 42, 0.18),
-    0 0 90px rgba(255, 138, 42, 0.10),
-    0 0 120px rgba(0, 0, 0, 0.5);
+    0 0 35px rgba(255, 138, 42, 0.2),
+    0 0 90px rgba(255, 138, 42, 0.1),
+    0 0 120px rgba(0, 0, 0, 0.6);
 }
 
 .project-popup-frame::before {
   content: "";
   position: absolute;
   inset: 10px;
-  border: 1px solid rgba(255, 138, 42, 0.15);
+  border: 1px solid rgba(255, 138, 42, 0.18);
   pointer-events: none;
   z-index: 2;
   opacity: 0;
-  transition: opacity 300ms ease 600ms; /* Apparaît une fois l'expansion finie */
+  transition: opacity 300ms ease 600ms;
 }
 
-/* Lancement de la séquence à l'ouverture */
 .project-popup-overlay.is-open .project-popup-frame {
-  animation: frameExpandSequence 850ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: frameExpandSequence 800ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .project-popup-overlay.is-open .project-popup-frame::before {
   opacity: 1;
 }
 
-/* Animation en 4 temps : Point -> Séparation des 4 points -> Mini-Rect -> Taille Finale */
 @keyframes frameExpandSequence {
   0% {
     inset: 50%;
@@ -444,20 +448,41 @@ svg {
     transform: scale(1);
   }
   42% {
-    /* Séparation des 4 points en un mini rectangle */
     top: calc(50% - 24px);
     bottom: calc(50% - 24px);
     left: calc(50% - 38px);
     right: calc(50% - 38px);
   }
   100% {
-    /* Expansion finale jusqu'aux bords originaux */
     inset: 0;
     opacity: 1;
   }
 }
 
-/* Les 4 petits cercles aux extremités */
+.hud-label {
+  position: absolute;
+  font-family: monospace, "Courier New", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(255, 138, 42, 0.75);
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 6;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 300ms ease 650ms;
+}
+
+.project-popup-overlay.is-open .hud-label {
+  opacity: 1;
+}
+
+.hud-label--top-left { top: -22px; left: 0; }
+.hud-label--top-right { top: -22px; right: 0; }
+.hud-label--bottom-left { bottom: -22px; left: 0; }
+.hud-label--bottom-right { bottom: -22px; right: 0; }
+
 .project-popup-dot {
   position: absolute;
   width: 9px;
@@ -465,9 +490,9 @@ svg {
   border-radius: 50%;
   background: #ff8a2a;
   box-shadow:
-    0 0 8px rgba(255, 138, 42, 0.8),
-    0 0 18px rgba(255, 138, 42, 0.4);
-  z-index: 3;
+    0 0 8px rgba(255, 138, 42, 0.9),
+    0 0 18px rgba(255, 138, 42, 0.5);
+  z-index: 5;
   pointer-events: none;
 }
 
@@ -476,7 +501,6 @@ svg {
 .project-popup-dot--bottom-left { bottom: -4px; left: -4px; }
 .project-popup-dot--bottom-right { bottom: -4px; right: -4px; }
 
-/* Contenu média / Image */
 .project-popup-media {
   position: absolute;
   inset: var(--popup-inner-gap);
@@ -484,45 +508,97 @@ svg {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #050505;
+  background: #040405;
   opacity: 0;
-  transition: opacity 400ms ease 550ms; /* Révélation en douceur en fin d'expansion */
-}
-
-/* Placeholder élégant si pas d'image présente */
-.project-popup-media:empty::before {
-  content: "IMAGE INCOMING";
-  font-family: Arial, sans-serif;
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  color: rgba(255, 138, 42, 0.4);
-  text-transform: uppercase;
+  transition: opacity 400ms ease 550ms;
 }
 
 .project-popup-overlay.is-open .project-popup-media {
   opacity: 1;
 }
 
+.hud-grid-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background-image: 
+    linear-gradient(rgba(255, 138, 42, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 138, 42, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.85;
+}
+
+.hud-scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0) 50%,
+    rgba(0, 0, 0, 0.35) 50%,
+    rgba(0, 0, 0, 0.35)
+  );
+  background-size: 100% 4px;
+  opacity: 0.5;
+}
+
+.hud-laser-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #ff8a2a;
+  box-shadow: 
+    0 0 12px #ff8a2a,
+    0 0 24px #ff8a2a,
+    0 -20px 30px rgba(255, 138, 42, 0.6);
+  z-index: 5;
+  pointer-events: none;
+  top: 0;
+  opacity: 0;
+}
+
+.project-popup-overlay.is-open .hud-laser-scan {
+  animation: laserScanPass 1200ms cubic-bezier(0.25, 1, 0.5, 1) 700ms forwards;
+}
+
+@keyframes laserScanPass {
+  0% {
+    top: 0%;
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+/* Rendu plein cadre sans bandes noires */
 .project-popup-image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
 }
 
-/* Bouton de fermeture */
 .project-popup-close {
   position: absolute;
   top: 12px;
   right: 12px;
-  z-index: 4;
+  z-index: 7;
   width: 34px;
   height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 138, 42, 0.18);
-  background: rgba(0, 0, 0, 0.78);
+  border: 1px solid rgba(255, 138, 42, 0.22);
+  background: rgba(0, 0, 0, 0.85);
   color: rgba(255, 138, 42, 0.92);
   font-size: 22px;
   line-height: 1;
@@ -544,15 +620,14 @@ svg {
 .project-popup-close:hover,
 .project-popup-close:focus-visible {
   color: #ff8a2a;
-  border-color: rgba(255, 138, 42, 0.5);
-  background: rgba(0, 0, 0, 0.92);
+  border-color: rgba(255, 138, 42, 0.55);
+  background: rgba(0, 0, 0, 0.95);
   box-shadow:
-    0 0 10px rgba(255, 138, 42, 0.18),
-    0 0 22px rgba(255, 138, 42, 0.10);
+    0 0 10px rgba(255, 138, 42, 0.22),
+    0 0 22px rgba(255, 138, 42, 0.12);
   transform: scale(1.04);
 }
 
-/* Responsiveness */
 @media (max-width: 900px) {
   :root {
     --project-size: clamp(30px, 6.5vw, 60px);
@@ -563,6 +638,10 @@ svg {
     --popup-size-portrait-height: min(760px, calc(100vh - 56px));
     --popup-size-portrait-width: min(520px, calc(100vw - 56px));
     --popup-inner-gap: 18px;
+  }
+
+  .hud-label {
+    font-size: 8px;
   }
 }
 
@@ -601,6 +680,16 @@ svg {
     top: auto;
   }
 
+  .hud-label--top-left,
+  .hud-label--top-right {
+    top: -18px;
+  }
+
+  .hud-label--bottom-left,
+  .hud-label--bottom-right {
+    bottom: -18px;
+  }
+
   .project-title-mask {
     padding: 0.05em 0.2em;
   }
@@ -632,7 +721,8 @@ svg {
   .project-meta,
   .project-popup-overlay,
   .project-popup-frame,
-  .project-popup-close {
+  .project-popup-close,
+  .hud-laser-scan {
     transition: none;
     animation: none;
     filter: none;
@@ -645,5 +735,13 @@ svg {
 
   .project-popup-media {
     opacity: 1;
+  }
+
+  .hud-label {
+    opacity: 1;
+  }
+
+  .hud-laser-scan {
+    display: none;
   }
 }

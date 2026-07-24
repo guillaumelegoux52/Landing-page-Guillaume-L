@@ -40,7 +40,7 @@
           </li>
 
           <li class="project-item">
-            <a class="project-link" href="#projet-3">
+            <a class="project-link" href="#projet-3" id="currus-trigger">
               <span class="project-meta">branding</span>
               <span class="project-title-mask">
                 <span class="project-title" data-text="CURRUS">CURRUS</span>
@@ -49,7 +49,7 @@
           </li>
 
           <li class="project-item">
-            <a class="project-link" href="#projet-4">
+            <a class="project-link" href="#projet-4" id="loewe-trigger">
               <span class="project-meta">illustration</span>
               <span class="project-title-mask">
                 <span class="project-title" data-text="LOEWE">LOEWE</span>
@@ -58,7 +58,7 @@
           </li>
 
           <li class="project-item">
-            <a class="project-link" href="#projet-5">
+            <a class="project-link" href="#projet-5" id="coze-trigger">
               <span class="project-meta">cover</span>
               <span class="project-title-mask">
                 <span class="project-title" data-text="COZE MAG">COZE MAG</span>
@@ -75,6 +75,7 @@
     </footer>
   </div>
 
+  <!-- POPUP 1: GIFT (Carré) -->
   <div class="project-popup-overlay" id="gift-popup-overlay" aria-hidden="true">
     <div
       class="project-popup project-popup--square"
@@ -92,6 +93,11 @@
         &#215;
       </button>
 
+      <span class="hud-label hud-label--top-left">[SYS.READY]</span>
+      <span class="hud-label hud-label--top-right">ASSET // GIFT</span>
+      <span class="hud-label hud-label--bottom-left">GRID_REF: 48.85 / 2.35</span>
+      <span class="hud-label hud-label--bottom-right">STATUS // ONLINE</span>
+
       <span class="project-popup-dot project-popup-dot--top-left"></span>
       <span class="project-popup-dot project-popup-dot--top-right"></span>
       <span class="project-popup-dot project-popup-dot--bottom-left"></span>
@@ -99,6 +105,10 @@
 
       <div class="project-popup-frame">
         <div class="project-popup-media">
+          <div class="hud-grid-overlay"></div>
+          <div class="hud-scanlines"></div>
+          <div class="hud-laser-scan"></div>
+
           <img
             class="project-popup-image"
             src="./images/gift-800.webp"
@@ -113,6 +123,7 @@
     </div>
   </div>
 
+  <!-- POPUP 2: LUXOR (Portrait 2:3) -->
   <div class="project-popup-overlay" id="luxor-popup-overlay" aria-hidden="true">
     <div
       class="project-popup project-popup--portrait"
@@ -130,6 +141,11 @@
         &#215;
       </button>
 
+      <span class="hud-label hud-label--top-left">[SYS.READY]</span>
+      <span class="hud-label hud-label--top-right">ASSET // LUXOR</span>
+      <span class="hud-label hud-label--bottom-left">GRID_REF: 48.85 / 2.35</span>
+      <span class="hud-label hud-label--bottom-right">STATUS // ONLINE</span>
+
       <span class="project-popup-dot project-popup-dot--top-left"></span>
       <span class="project-popup-dot project-popup-dot--top-right"></span>
       <span class="project-popup-dot project-popup-dot--bottom-left"></span>
@@ -137,12 +153,160 @@
 
       <div class="project-popup-frame">
         <div class="project-popup-media">
+          <div class="hud-grid-overlay"></div>
+          <div class="hud-scanlines"></div>
+          <div class="hud-laser-scan"></div>
+
           <img
             class="project-popup-image"
             src="./images/luxor-3d.webp"
             alt="Visuel du projet LUXOR"
             width="800"
             height="1200"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP 3: CURRUS (Carré) -->
+  <div class="project-popup-overlay" id="currus-popup-overlay" aria-hidden="true">
+    <div
+      class="project-popup project-popup--square"
+      id="currus-popup"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Fenêtre projet CURRUS"
+    >
+      <button
+        class="project-popup-close"
+        id="currus-popup-close"
+        type="button"
+        aria-label="Fermer la fenêtre CURRUS"
+      >
+        &#215;
+      </button>
+
+      <span class="hud-label hud-label--top-left">[SYS.READY]</span>
+      <span class="hud-label hud-label--top-right">ASSET // CURRUS</span>
+      <span class="hud-label hud-label--bottom-left">GRID_REF: 48.85 / 2.35</span>
+      <span class="hud-label hud-label--bottom-right">STATUS // ONLINE</span>
+
+      <span class="project-popup-dot project-popup-dot--top-left"></span>
+      <span class="project-popup-dot project-popup-dot--top-right"></span>
+      <span class="project-popup-dot project-popup-dot--bottom-left"></span>
+      <span class="project-popup-dot project-popup-dot--bottom-right"></span>
+
+      <div class="project-popup-frame">
+        <div class="project-popup-media">
+          <div class="hud-grid-overlay"></div>
+          <div class="hud-scanlines"></div>
+          <div class="hud-laser-scan"></div>
+
+          <img
+            class="project-popup-image"
+            src="./images/currus-chrome.webp"
+            alt="Visuel du projet CURRUS"
+            width="800"
+            height="800"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP 4: LOEWE (Carré) -->
+  <div class="project-popup-overlay" id="loewe-popup-overlay" aria-hidden="true">
+    <div
+      class="project-popup project-popup--square"
+      id="loewe-popup"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Fenêtre projet LOEWE"
+    >
+      <button
+        class="project-popup-close"
+        id="loewe-popup-close"
+        type="button"
+        aria-label="Fermer la fenêtre LOEWE"
+      >
+        &#215;
+      </button>
+
+      <span class="hud-label hud-label--top-left">[SYS.READY]</span>
+      <span class="hud-label hud-label--top-right">ASSET // LOEWE</span>
+      <span class="hud-label hud-label--bottom-left">GRID_REF: 48.85 / 2.35</span>
+      <span class="hud-label hud-label--bottom-right">STATUS // ONLINE</span>
+
+      <span class="project-popup-dot project-popup-dot--top-left"></span>
+      <span class="project-popup-dot project-popup-dot--top-right"></span>
+      <span class="project-popup-dot project-popup-dot--bottom-left"></span>
+      <span class="project-popup-dot project-popup-dot--bottom-right"></span>
+
+      <div class="project-popup-frame">
+        <div class="project-popup-media">
+          <div class="hud-grid-overlay"></div>
+          <div class="hud-scanlines"></div>
+          <div class="hud-laser-scan"></div>
+
+          <img
+            class="project-popup-image"
+            src="./images/loewe-bus.webp"
+            alt="Visuel du projet LOEWE"
+            width="800"
+            height="800"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP 5: COZE MAG (Portrait 621x875) -->
+  <div class="project-popup-overlay" id="coze-popup-overlay" aria-hidden="true">
+    <div
+      class="project-popup project-popup--coze"
+      id="coze-popup"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Fenêtre projet COZE MAG"
+    >
+      <button
+        class="project-popup-close"
+        id="coze-popup-close"
+        type="button"
+        aria-label="Fermer la fenêtre COZE MAG"
+      >
+        &#215;
+      </button>
+
+      <span class="hud-label hud-label--top-left">[SYS.READY]</span>
+      <span class="hud-label hud-label--top-right">ASSET // COZE MAG</span>
+      <span class="hud-label hud-label--bottom-left">GRID_REF: 48.85 / 2.35</span>
+      <span class="hud-label hud-label--bottom-right">STATUS // ONLINE</span>
+
+      <span class="project-popup-dot project-popup-dot--top-left"></span>
+      <span class="project-popup-dot project-popup-dot--top-right"></span>
+      <span class="project-popup-dot project-popup-dot--bottom-left"></span>
+      <span class="project-popup-dot project-popup-dot--bottom-right"></span>
+
+      <div class="project-popup-frame">
+        <div class="project-popup-media">
+          <div class="hud-grid-overlay"></div>
+          <div class="hud-scanlines"></div>
+          <div class="hud-laser-scan"></div>
+
+          <img
+            class="project-popup-image"
+            src="./images/couv-coze.webp"
+            alt="Visuel du projet COZE MAG"
+            width="621"
+            height="875"
             loading="eager"
             decoding="async"
           />
