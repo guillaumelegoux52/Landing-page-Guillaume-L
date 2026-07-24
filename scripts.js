@@ -41,7 +41,7 @@ const keyLight = new THREE.DirectionalLight(0xffffff, 2.1);
 keyLight.position.set(150, 140, 220);
 scene.add(keyLight);
 
-const fillLight = new THREE.DirectionalLight(0xd9e2ff, 0.75);
+const fillLight = new THREE.DirectionalLight(0xffd9d9, 0.75);
 fillLight.position.set(-160, 40, 120);
 scene.add(fillLight);
 
@@ -49,11 +49,11 @@ const rimLight = new THREE.DirectionalLight(0xffffff, 1.22);
 rimLight.position.set(0, 30, -220);
 scene.add(rimLight);
 
-const underGlow = new THREE.DirectionalLight(0xff7417, 3.3);
+const underGlow = new THREE.DirectionalLight(0xff2222, 3.3);
 underGlow.position.set(0, -220, 140);
 scene.add(underGlow);
 
-const warmBounce = new THREE.AmbientLight(0xff9a52, 0.16);
+const warmBounce = new THREE.AmbientLight(0xff5252, 0.16);
 scene.add(warmBounce);
 
 const logoPivot = new THREE.Group();
@@ -93,6 +93,59 @@ bloomPass.strength = 3.05;
 bloomPass.radius = 0.42;
 composer.addPass(bloomPass);
 
+// === CUSTOM SHADER : BAYER MATRIX DITHERING (VERSION DRAMATIQUE / 1-BIT) ===
+const BayerDitheringShader = {
+  uniforms: {
+    "tDiffuse": { value: null },
+    "resolution": { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform vec2 resolution;
+    varying vec2 vUv;
+
+    // Matrice de Bayer 4x4
+    const float bayer4[16] = float[16](
+        0.0/16.0,  8.0/16.0,  2.0/16.0, 10.0/16.0,
+        12.0/16.0,  4.0/16.0, 14.0/16.0,  6.0/16.0,
+        3.0/16.0, 11.0/16.0,  1.0/16.0,  9.0/16.0,
+        15.0/16.0,  7.0/16.0, 13.0/16.0,  5.0/16.0
+    );
+
+    void main() {
+      vec4 color = texture2D(tDiffuse, vUv);
+      
+      // Calcul de la luminance avec boost agressif du contraste
+      float luminance = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+      luminance = clamp((luminance - 0.32) * 2.8 + 0.32, 0.0, 1.0);
+
+      // Division des coordonnées pour grossir les pixels du tramage (effet bitmap rétro)
+      vec2 coord = gl_FragCoord.xy / 1.75;
+      int x = int(mod(coord.x, 4.0));
+      int y = int(mod(coord.y, 4.0));
+      int index = x + y * 4;
+      
+      float limit = bayer4[index];
+
+      // Palette stricte 1-bit : Noir profond ou Rouge/Orange saturé agressif
+      vec3 retroRed = vec3(1.0, 0.06, 0.06);
+      vec3 finalColor = luminance > limit ? color.rgb * retroRed * 1.6 : vec3(0.0);
+
+      gl_FragColor = vec4(finalColor, color.a);
+    }
+  `
+};
+
+const ditherPass = new THREE.ShaderPass(BayerDitheringShader);
+composer.addPass(ditherPass);
+
 function updateCamera(frustum = currentFrustumSize) {
   currentFrustumSize = frustum;
 
@@ -105,6 +158,10 @@ function updateCamera(frustum = currentFrustumSize) {
 
   renderer.setSize(window.innerWidth, window.innerHeight);
   composer.setSize(window.innerWidth, window.innerHeight);
+  
+  if (ditherPass.uniforms.resolution) {
+    ditherPass.uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
+  }
 }
 
 const svgLoader = new THREE.SVGLoader();
@@ -196,11 +253,21 @@ const popupBindings = [
   }
 ];
 
+function triggerClosePopup(overlay) {
+  if (!overlay || (!overlay.classList.contains("is-open") && !overlay.classList.contains("is-closing"))) return;
+  
+  overlay.classList.remove("is-open");
+  overlay.classList.add("is-closing");
+  overlay.setAttribute("aria-hidden", "true");
+
+  setTimeout(function () {
+    overlay.classList.remove("is-closing");
+  }, 700); // Correspond à la durée de l'animation CSS de fermeture (700ms)
+}
+
 function closeAllPopups() {
   popupBindings.forEach(function ({ overlay }) {
-    if (!overlay) return;
-    overlay.classList.remove("is-open");
-    overlay.setAttribute("aria-hidden", "true");
+    triggerClosePopup(overlay);
   });
 }
 
@@ -210,8 +277,7 @@ popupBindings.forEach(function ({ trigger, overlay, close }) {
       event.preventDefault();
       closeAllPopups();
 
-      // Trigger reflow pour rejouer l'animation laser scan à chaque ouverture
-      overlay.classList.remove("is-open");
+      overlay.classList.remove("is-open", "is-closing");
       void overlay.offsetWidth;
 
       overlay.classList.add("is-open");
@@ -221,16 +287,14 @@ popupBindings.forEach(function ({ trigger, overlay, close }) {
 
   if (close && overlay) {
     close.addEventListener("click", function () {
-      overlay.classList.remove("is-open");
-      overlay.setAttribute("aria-hidden", "true");
+      triggerClosePopup(overlay);
     });
   }
 
   if (overlay) {
     overlay.addEventListener("click", function (event) {
       if (event.target === overlay) {
-        overlay.classList.remove("is-open");
-        overlay.setAttribute("aria-hidden", "true");
+        triggerClosePopup(overlay);
       }
     });
   }

@@ -14,7 +14,7 @@
 
   --project-color: #f3f1eb;
   --project-color-dim: rgba(243, 241, 235, 0.08);
-  --meta-color: #ff8a2a;
+  --meta-color: #ff2222;
 
   --pad-x: clamp(20px, 2.8vw, 38px);
   --pad-y: clamp(16px, 1.8vw, 26px);
@@ -96,13 +96,13 @@ svg {
   z-index: 2;
   background:
     radial-gradient(circle at 50% 50%,
-      rgba(255, 140, 40, 0.12) 0%,
-      rgba(255, 140, 40, 0.06) 18%,
-      rgba(255, 140, 40, 0.015) 34%,
+      rgba(255, 34, 34, 0.12) 0%,
+      rgba(255, 34, 34, 0.06) 18%,
+      rgba(255, 34, 34, 0.015) 34%,
       rgba(0, 0, 0, 0) 52%),
     radial-gradient(circle at 50% 58%,
-      rgba(255, 220, 170, 0.04) 0%,
-      rgba(255, 220, 170, 0.015) 20%,
+      rgba(255, 180, 170, 0.04) 0%,
+      rgba(255, 180, 170, 0.015) 20%,
       rgba(0, 0, 0, 0) 42%);
   mix-blend-mode: screen;
   opacity: 0.84;
@@ -275,7 +275,7 @@ svg {
     rgba(140, 145, 155, 0.3) 32%,
     rgba(20, 20, 25, 0.85) 42%,
     #ffffff 49%,
-    rgba(255, 145, 40, 0.95) 53%,
+    rgba(255, 34, 34, 0.95) 53%,
     rgba(15, 15, 20, 0.8) 58%,
     rgba(220, 225, 235, 0.5) 66%,
     transparent 80%,
@@ -352,7 +352,7 @@ svg {
 }
 
 /* ==========================================================================
-   POPUP HUD SCI-FI
+   POPUP HUD SCI-FI & CRT BITMAP EFFECTS (OUVERTURE & FERMETURE)
    ========================================================================== */
 
 .project-popup-overlay {
@@ -363,20 +363,32 @@ svg {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0px);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
   transition:
     opacity 300ms ease,
-    visibility 300ms ease;
+    visibility 300ms ease,
+    background 300ms ease,
+    backdrop-filter 300ms ease;
 }
 
 .project-popup-overlay.is-open {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.project-popup-overlay.is-closing {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0px);
 }
 
 .project-popup {
@@ -408,20 +420,19 @@ svg {
   position: absolute;
   inset: 50%;
   opacity: 0;
-  background: rgba(3, 3, 4, 0.96);
-  border: 1px solid rgba(255, 138, 42, 0.65);
+  background: rgba(5, 0, 0, 0.98);
+  border: 1px solid rgba(255, 34, 34, 0.8);
   box-shadow:
-    0 0 0 1px rgba(255, 138, 42, 0.12),
-    0 0 35px rgba(255, 138, 42, 0.2),
-    0 0 90px rgba(255, 138, 42, 0.1),
-    0 0 120px rgba(0, 0, 0, 0.6);
+    0 0 0 1px rgba(255, 34, 34, 0.2),
+    0 0 40px rgba(255, 34, 34, 0.25),
+    0 0 100px rgba(0, 0, 0, 0.8);
 }
 
 .project-popup-frame::before {
   content: "";
   position: absolute;
   inset: 10px;
-  border: 1px solid rgba(255, 138, 42, 0.18);
+  border: 1px solid rgba(255, 34, 34, 0.22);
   pointer-events: none;
   z-index: 2;
   opacity: 0;
@@ -430,6 +441,10 @@ svg {
 
 .project-popup-overlay.is-open .project-popup-frame {
   animation: frameExpandSequence 800ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.project-popup-overlay.is-closing .project-popup-frame {
+  animation: frameCollapseSequence 700ms cubic-bezier(0.2, 0.1, 0.8, 0.9) forwards;
 }
 
 .project-popup-overlay.is-open .project-popup-frame::before {
@@ -459,13 +474,37 @@ svg {
   }
 }
 
-.hud-label {
+@keyframes frameCollapseSequence {
+  0% {
+    inset: 0;
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    top: calc(50% - 24px);
+    bottom: calc(50% - 24px);
+    left: calc(50% - 38px);
+    right: calc(50% - 38px);
+    opacity: 0.8;
+  }
+  100% {
+    inset: 50%;
+    opacity: 0;
+    transform: scale(0);
+  }
+}
+
+.crt-text-glitch {
   position: absolute;
   font-family: monospace, "Courier New", sans-serif;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.18em;
-  color: rgba(255, 138, 42, 0.75);
+  color: #ff2222;
+  text-shadow:
+    -1.5px 0 rgba(0, 255, 255, 0.8),
+    1.5px 0 rgba(255, 0, 85, 0.8),
+    0 0 10px rgba(255, 34, 34, 0.5);
   text-transform: uppercase;
   pointer-events: none;
   z-index: 6;
@@ -474,8 +513,13 @@ svg {
   transition: opacity 300ms ease 650ms;
 }
 
-.project-popup-overlay.is-open .hud-label {
+.project-popup-overlay.is-open .crt-text-glitch {
   opacity: 1;
+}
+
+.project-popup-overlay.is-closing .crt-text-glitch {
+  opacity: 0;
+  transition: opacity 100ms ease;
 }
 
 .hud-label--top-left { top: -22px; left: 0; }
@@ -488,10 +532,10 @@ svg {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #ff8a2a;
+  background: #ff2222;
   box-shadow:
-    0 0 8px rgba(255, 138, 42, 0.9),
-    0 0 18px rgba(255, 138, 42, 0.5);
+    0 0 8px rgba(255, 34, 34, 0.9),
+    0 0 18px rgba(255, 34, 34, 0.6);
   z-index: 5;
   pointer-events: none;
 }
@@ -508,69 +552,49 @@ svg {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #040405;
+  background: #050000;
   opacity: 0;
-  transition: opacity 400ms ease 550ms;
+  transition: opacity 200ms ease 400ms;
 }
 
 .project-popup-overlay.is-open .project-popup-media {
   opacity: 1;
 }
 
-.hud-grid-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 3;
-  background-image: 
-    linear-gradient(rgba(255, 138, 42, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 138, 42, 0.07) 1px, transparent 1px);
-  background-size: 28px 28px;
-  opacity: 0.85;
+.project-popup-overlay.is-closing .project-popup-media {
+  opacity: 0;
+  transition: opacity 150ms ease 550ms;
 }
 
-.hud-scanlines {
+/* Faisceau lumineux de balayage informatique (CRT Scan Sweep) */
+.crt-scan-beam {
   position: absolute;
   inset: 0;
-  pointer-events: none;
-  z-index: 4;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0),
-    rgba(255, 255, 255, 0) 50%,
-    rgba(0, 0, 0, 0.35) 50%,
-    rgba(0, 0, 0, 0.35)
-  );
-  background-size: 100% 4px;
-  opacity: 0.5;
-}
-
-.hud-laser-scan {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #ff8a2a;
+  height: 4px;
+  background: rgba(255, 40, 40, 0.95);
   box-shadow: 
-    0 0 12px #ff8a2a,
-    0 0 24px #ff8a2a,
-    0 -20px 30px rgba(255, 138, 42, 0.6);
+    0 0 15px rgba(255, 34, 34, 1),
+    0 0 30px rgba(255, 34, 34, 0.8),
+    0 0 60px rgba(255, 34, 34, 0.5);
   z-index: 5;
   pointer-events: none;
-  top: 0;
   opacity: 0;
 }
 
-.project-popup-overlay.is-open .hud-laser-scan {
-  animation: laserScanPass 1200ms cubic-bezier(0.25, 1, 0.5, 1) 700ms forwards;
+.project-popup-overlay.is-open .crt-scan-beam {
+  animation: scanBeamSweep 1000ms cubic-bezier(0.1, 0.85, 0.2, 1) forwards;
 }
 
-@keyframes laserScanPass {
+.project-popup-overlay.is-closing .crt-scan-beam {
+  animation: scanBeamClose 700ms cubic-bezier(0.2, 0.1, 0.8, 0.9) forwards;
+}
+
+@keyframes scanBeamSweep {
   0% {
     top: 0%;
     opacity: 1;
   }
-  85% {
+  90% {
     opacity: 1;
   }
   100% {
@@ -579,12 +603,99 @@ svg {
   }
 }
 
-/* Rendu plein cadre sans bandes noires */
+@keyframes scanBeamClose {
+  0% {
+    top: 100%;
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    top: 0%;
+    opacity: 1;
+  }
+}
+
+.hud-grid-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background-image: 
+    linear-gradient(rgba(255, 34, 34, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 34, 34, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.85;
+}
+
+.crt-screen-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  background-image: radial-gradient(rgba(255, 40, 40, 0.45) 1px, transparent 1px);
+  background-size: 3px 3px;
+  mix-blend-mode: overlay;
+  opacity: 0.85;
+}
+
 .project-popup-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
+  display: block;
+  opacity: 0;
+}
+
+/* Animations d'ouverture et de fermeture Bitmap dures */
+.project-popup-overlay.is-open .project-popup-image {
+  animation: harshBitmapReveal 1000ms cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+}
+
+.project-popup-overlay.is-closing .project-popup-image {
+  animation: harshBitmapClose 700ms cubic-bezier(0.2, 0.1, 0.8, 0.9) forwards;
+}
+
+@keyframes harshBitmapReveal {
+  0% {
+    filter: contrast(700%) brightness(1.9) sepia(100%) hue-rotate(-50deg) saturate(3000%);
+    clip-path: inset(0 0 100% 0);
+    opacity: 0.1;
+    transform: scale(0.98);
+  }
+  30% {
+    filter: contrast(500%) brightness(1.5) sepia(90%) hue-rotate(-40deg) saturate(1500%);
+    clip-path: inset(0 0 45% 0);
+    opacity: 0.7;
+  }
+  100% {
+    filter: contrast(100%) brightness(1) sepia(0%) hue-rotate(0deg) saturate(100%);
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes harshBitmapClose {
+  0% {
+    filter: contrast(100%) brightness(1) sepia(0%) hue-rotate(0deg) saturate(100%);
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    filter: contrast(600%) brightness(1.7) sepia(100%) hue-rotate(-45deg) saturate(2500%);
+    clip-path: inset(0 0 50% 0);
+    opacity: 0.7;
+  }
+  100% {
+    filter: contrast(900%) brightness(2.2) sepia(100%) hue-rotate(-60deg) saturate(4000%);
+    clip-path: inset(0 0 100% 0);
+    opacity: 0;
+    transform: scale(0.95);
+  }
 }
 
 .project-popup-close {
@@ -597,9 +708,9 @@ svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 138, 42, 0.22);
-  background: rgba(0, 0, 0, 0.85);
-  color: rgba(255, 138, 42, 0.92);
+  border: 1px solid rgba(255, 34, 34, 0.3);
+  background: rgba(10, 0, 0, 0.85);
+  color: rgba(255, 34, 34, 0.95);
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
@@ -617,14 +728,19 @@ svg {
   opacity: 1;
 }
 
+.project-popup-overlay.is-closing .project-popup-close {
+  opacity: 0;
+  transition: opacity 100ms ease;
+}
+
 .project-popup-close:hover,
 .project-popup-close:focus-visible {
-  color: #ff8a2a;
-  border-color: rgba(255, 138, 42, 0.55);
-  background: rgba(0, 0, 0, 0.95);
+  color: #ff4444;
+  border-color: rgba(255, 34, 34, 0.7);
+  background: rgba(15, 0, 0, 0.95);
   box-shadow:
-    0 0 10px rgba(255, 138, 42, 0.22),
-    0 0 22px rgba(255, 138, 42, 0.12);
+    0 0 12px rgba(255, 34, 34, 0.4),
+    0 0 24px rgba(255, 34, 34, 0.2);
   transform: scale(1.04);
 }
 
@@ -640,7 +756,7 @@ svg {
     --popup-inner-gap: 18px;
   }
 
-  .hud-label {
+  .crt-text-glitch {
     font-size: 8px;
   }
 }
@@ -680,13 +796,13 @@ svg {
     top: auto;
   }
 
-  .hud-label--top-left,
-  .hud-label--top-right {
+  .crt-text-glitch.hud-label--top-left,
+  .crt-text-glitch.hud-label--top-right {
     top: -18px;
   }
 
-  .hud-label--bottom-left,
-  .hud-label--bottom-right {
+  .crt-text-glitch.hud-label--bottom-left,
+  .crt-text-glitch.hud-label--bottom-right {
     bottom: -18px;
   }
 
@@ -721,8 +837,7 @@ svg {
   .project-meta,
   .project-popup-overlay,
   .project-popup-frame,
-  .project-popup-close,
-  .hud-laser-scan {
+  .project-popup-close {
     transition: none;
     animation: none;
     filter: none;
@@ -737,11 +852,7 @@ svg {
     opacity: 1;
   }
 
-  .hud-label {
+  .crt-text-glitch {
     opacity: 1;
-  }
-
-  .hud-laser-scan {
-    display: none;
   }
 }
